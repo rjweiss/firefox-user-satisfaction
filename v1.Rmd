@@ -1,0 +1,40 @@
+---
+title: "User Satisfaction Index v1"
+author: "Rebecca Weiss"
+date: "January 26, 2016"
+output: html_document
+---
+
+```{r echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+source('v1.R') # recoding and another data reshaping
+```
+
+# Responses by day of the week
+
+```{r, echo=TRUE, fig.align='center'}
+submissions = data.frame(table(lubridate::floor_date(data$date, unit="day")))
+names(submissions) = c('date', 'count')
+submissions$count = as.numeric(submissions$count)
+submissions$date = lubridate::ymd(submissions$date)
+submissions$wday = lubridate::wday(submissions$date, label=T)
+ggplot(submissions, aes(x=wday, y=count, label=count)) + geom_bar(stat="identity") + geom_text(vjust=-1) +theme_pander()
+```
+
+# Correlations of questions and heartbeat score
+
+```{r, echo=TRUE, fig.align='center'}
+release = data[data$updatechannel == 'release',]# && data$country == 'United States',]
+cor_subset = subset(release, select=c("score","paranoia", "retrospective", "prospective", "control", "expectations1", "expectations2", "expectations3"))
+summary(cor_subset)
+cor_subset = scale(cor_subset)
+cormat = round(cor(cor_subset, use="pairwise.complete.obs", method="pearson"), 2)
+# Taken from here: https://briatte.github.io/ggcorr/
+GGally::ggcorr(cormat, geom = "blank", label = TRUE, hjust = 0.75) +
+  geom_point(size = 10, aes(color = coefficient > 0, alpha = abs(coefficient) > 0.5)) +
+  scale_alpha_manual(values = c("TRUE" = 0.25, "FALSE" = 0)) +
+  guides(color = FALSE, alpha = FALSE)
+```
+
+```{r}
+sessionInfo()
+```
