@@ -31,9 +31,9 @@ ggplot(submissions, aes(x=wday, y=count, label=count)) + geom_bar(stat="identity
 # Densities of responses to each question
 
 ```{r, echo=TRUE, fig.align='center', fig.height=8}
-questions = subset(data, select=c("score","paranoia", "retrospective", "prospective", "control", "expectations1", "expectations2", "expectations3"))
+questions = subset(data, select=c("score","paranoia", "retrospective", "prospective", "control", "expectations1", 'expectations2', 'expectations3'))
 melted_questions = melt(questions)
-ggplot(melted_questions, aes(x=value, fill=variable)) + geom_density() + scale_x_continuous(limits=c(-2, 2)) + facet_wrap(~variable, ncol=1) + theme_bw()
+ggplot(melted_questions, aes(x=value, fill=variable)) + geom_histogram(binwidth=1) + scale_x_continuous(limits=c(-2, 2)) + facet_wrap(~variable, ncol=1) + theme_bw()
 ```
 
 # Distribution of responses to each question
@@ -49,8 +49,8 @@ ggplot(melted_question_xscore, aes(x=as.factor(score), y=value)) + geom_boxplot(
 summary(questions)
 cormat = round(cor(questions, use="pairwise.complete.obs", method="pearson"), 2)
 # Taken from here: https://briatte.github.io/ggcorr/
-GGally::ggcorr(cormat, geom = "blank", label = TRUE, hjust = 0.75) +
-  geom_point(size = 10, aes(color = coefficient > 0, alpha = abs(coefficient) > 0.5)) +
+GGally::ggcorr(questions, geom = "blank", label = TRUE, label_round=2, hjust = 0.75) +
+  geom_point(size = 10, aes(color = coefficient > 0, alpha = abs(coefficient) > 0.3)) +
   scale_alpha_manual(values = c("TRUE" = 0.25, "FALSE" = 0)) +
   guides(color = FALSE, alpha = FALSE)
 ```
@@ -58,26 +58,49 @@ GGally::ggcorr(cormat, geom = "blank", label = TRUE, hjust = 0.75) +
 # Modeling: Ordered Logistic Regression
 
 ```{r}
-small_questions = subset(questions, select=c("score", "paranoia", "retrospective", "prospective", "control", "expectations1"))
-small_questions = small_questions[complete.cases(small_questions),]
-scaled_small_questions = as.data.frame(scale(small_questions[,2:6]))
+small_questions = subset(questions, select=c("score", "paranoia", "retrospective", "prospective", "control", "expectations1", "expectations2", "expectations3"))
+scaled_small_questions = as.data.frame(scale(small_questions[,2:8]))
 scaled_small_questions$score = small_questions$score
-model = MASS::polr(as.factor(score) ~ paranoia + prospective + control + retrospective + expectations1, data=scaled_small_questions, Hess=TRUE)
-phat = as.data.frame(predict(model, type="class"))
-pander(table(phat$`predict(model, type = "class")`, small_questions$score))
-accuracy = sum(phat$`predict(model, type = "class")` == small_questions$score)/length(small_questions$score)
-print(accuracy)
+questions_v1 = scaled_small_questions[!is.na(scaled_small_questions$expectations1),]
+questions_v2 = scaled_small_questions[!is.na(scaled_small_questions$expectations2),]
+questions_v3 = scaled_small_questions[!is.na(scaled_small_questions$expectations3),]
+
+#questions_v1 = questions_v1[complete.cases(questions_v1)]
+#questions_v2 = questions_v2[complete.cases(questions_v2)]
+#questions_v3 = questions_v3[complete.cases(questions_v3)]
+#questions_v3 = questions_v3[, colSums(is.na(questions_v3)) != nrow(questions_v3)]
+
+model1 = MASS::polr(as.factor(score) ~ paranoia + prospective + control + retrospective + expectations1, data=questions, Hess=TRUE)
+model2 = MASS::polr(as.factor(score) ~ paranoia + prospective + control + retrospective + expectations2, data=questions, Hess=TRUE)
+model3 = MASS::polr(as.factor(score) ~ paranoia + prospective + control + retrospective + expectations3, data=questions, Hess=TRUE)
+
+pander(summary(model1))
+pander(summary(model2))
+pander(summary(model3))
 ```
 
 ```{r}
-pander(summary(model))
-MASS::stepAIC(model)
+MASS::stepAIC(model1)
+MASS::stepAIC(model2)
+MASS::stepAIC(model3)
 
-model2 = MASS::polr(as.factor(score) ~ prospective + expectations1, data=scaled_small_questions, Hess=TRUE)
-phat = as.data.frame(predict(model2, type="class"))
-pander(table(phat$`predict(model2, type = "class")`, small_questions$score))
-accuracy = sum(phat$`predict(model2, type = "class")` == small_questions$score)/length(small_questions$score)
+model_restricted = MASS::polr(as.factor(score) ~ prospective + control, data=scaled_small_questions, Hess=TRUE)
+phat = as.data.frame(predict(model_restricted, type="class"))
+pander(table(phat$`predict(model_restricted, type = "class")`, scaled_small_questions$score))
+accuracy = sum(phat$`predict(model_restricted, type = "class")` == small_questions$score)/length(small_questions$score)
 print(accuracy)
+
+phat1 = as.data.frame(predict(model1, type="class"))
+accuracy1 = sum(phat1$`predict(model1, type = "class")` == questions_v1$score)/length(questions_v1$score)
+
+phat2 = as.data.frame(predict(model2, type="class"))
+accuracy2 = sum(phat2$`predict(model2, type = "class")` == questions_v2$score)/length(questions_v2$score)
+
+phat3 = as.data.frame(predict(model3, type="class"))
+accuracy3 = sum(phat3$`predict(model3, type = "class")` == questions_v3$score)/length(questions_v3$score)
+
+print(accuracy)
+
 ```
 
 # Appendix 
