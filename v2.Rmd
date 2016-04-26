@@ -1,5 +1,5 @@
 ---
-title: "User Satisfaction Index v1"
+title: "User Satisfaction Index v2"
 author: "Rebecca Weiss (revised by jtg)"
 date: "April 26, 2016"
 output: html_document
@@ -56,57 +56,57 @@ GGally::ggcorr(questions, geom = "blank", label = TRUE, label_round=2, hjust = 0
   guides(color = FALSE, alpha = FALSE)
 ```
 
-# Modeling: Ordered Logistic Regression
+<!-- # Modeling: Ordered Logistic Regression -->
 
-```{r}
-small_questions = subset(questions, select=c("score", "paranoia", "retrospective", "prospective", "control", "expectations1", "expectations2", "expectations3"))
-scaled_small_questions = as.data.frame(scale(small_questions[,2:8]))
-scaled_small_questions$score = small_questions$score
-questions_v1 = scaled_small_questions[!is.na(scaled_small_questions$expectations1),]
-questions_v2 = scaled_small_questions[!is.na(scaled_small_questions$expectations2),]
-questions_v3 = scaled_small_questions[!is.na(scaled_small_questions$expectations3),]
+<!-- ```{r} -->
+<!-- small_questions = subset(questions, select=c("score", "paranoia", "retrospective", "prospective", "control", "expectations1", "expectations2", "expectations3")) -->
+<!-- scaled_small_questions = as.data.frame(scale(small_questions[,2:8])) -->
+<!-- scaled_small_questions$score = small_questions$score -->
+<!-- questions_v1 = scaled_small_questions[!is.na(scaled_small_questions$expectations1),] -->
+<!-- questions_v2 = scaled_small_questions[!is.na(scaled_small_questions$expectations2),] -->
+<!-- questions_v3 = scaled_small_questions[!is.na(scaled_small_questions$expectations3),] -->
 
-#questions_v1 = questions_v1[complete.cases(questions_v1)]
-#questions_v2 = questions_v2[complete.cases(questions_v2)]
-#questions_v3 = questions_v3[complete.cases(questions_v3)]
-#questions_v3 = questions_v3[, colSums(is.na(questions_v3)) != nrow(questions_v3)]
+<!-- #questions_v1 = questions_v1[complete.cases(questions_v1)] -->
+<!-- #questions_v2 = questions_v2[complete.cases(questions_v2)] -->
+<!-- #questions_v3 = questions_v3[complete.cases(questions_v3)] -->
+<!-- #questions_v3 = questions_v3[, colSums(is.na(questions_v3)) != nrow(questions_v3)] -->
 
-model1 = MASS::polr(as.factor(score) ~ paranoia + prospective + control + retrospective + expectations1, data=questions, Hess=TRUE)
-model2 = MASS::polr(as.factor(score) ~ paranoia + prospective + control + retrospective + expectations2, data=questions, Hess=TRUE)
-model3 = MASS::polr(as.factor(score) ~ paranoia + prospective + control + retrospective + expectations3, data=questions, Hess=TRUE)
+<!-- model1 = MASS::polr(as.factor(score) ~ paranoia + prospective + control + retrospective + expectations1, data=questions, Hess=TRUE) -->
+<!-- model2 = MASS::polr(as.factor(score) ~ paranoia + prospective + control + retrospective + expectations2, data=questions, Hess=TRUE) -->
+<!-- model3 = MASS::polr(as.factor(score) ~ paranoia + prospective + control + retrospective + expectations3, data=questions, Hess=TRUE) -->
 
-pander(summary(model1))
-pander(summary(model2))
-pander(summary(model3))
-```
+<!-- pander(summary(model1)) -->
+<!-- pander(summary(model2)) -->
+<!-- pander(summary(model3)) -->
+<!-- ``` -->
 
-```{r}
-MASS::stepAIC(model1)
-MASS::stepAIC(model2)
-MASS::stepAIC(model3)
+<!-- ```{r} -->
+<!-- MASS::stepAIC(model1) -->
+<!-- MASS::stepAIC(model2) -->
+<!-- MASS::stepAIC(model3) -->
 
-model_restricted = MASS::polr(as.factor(score) ~ prospective + control, data=scaled_small_questions, Hess=TRUE)
-phat = as.data.frame(predict(model_restricted, type="class"))
-pander(table(phat$`predict(model_restricted, type = "class")`, scaled_small_questions$score))
-accuracy = sum(phat$`predict(model_restricted, type = "class")` == small_questions$score)/length(small_questions$score)
-print(accuracy)
-  +
-phat1 = as.data.frame(predict(model1, type="class"))
-accuracy1 = sum(phat1$`predict(model1, type = "class")` == questions_v1$score)/length(questions_v1$score)
+<!-- model_restricted = MASS::polr(as.factor(score) ~ prospective + control, data=scaled_small_questions, Hess=TRUE) -->
+<!-- phat = as.data.frame(predict(model_restricted, type="class")) -->
+<!-- pander(table(phat$`predict(model_restricted, type = "class")`, scaled_small_questions$score)) -->
+<!-- accuracy = sum(phat$`predict(model_restricted, type = "class")` == small_questions$score)/length(small_questions$score) -->
+<!-- print(accuracy) -->
+<!--   + -->
+<!-- phat1 = as.data.frame(predict(model1, type="class")) -->
+<!-- accuracy1 = sum(phat1$`predict(model1, type = "class")` == questions_v1$score)/length(questions_v1$score) -->
 
-phat2 = as.data.frame(predict(model2, type="class"))
-accuracy2 = sum(phat2$`predict(model2, type = "class")` == questions_v2$score)/length(questions_v2$score)
+<!-- phat2 = as.data.frame(predict(model2, type="class")) -->
+<!-- accuracy2 = sum(phat2$`predict(model2, type = "class")` == questions_v2$score)/length(questions_v2$score) -->
 
-phat3 = as.data.frame(predict(model3, type="class"))
-accuracy3 = sum(phat3$`predict(model3, type = "class")` == questions_v3$score)/length(questions_v3$score)
+<!-- phat3 = as.data.frame(predict(model3, type="class")) -->
+<!-- accuracy3 = sum(phat3$`predict(model3, type = "class")` == questions_v3$score)/length(questions_v3$score) -->
 
-print(accuracy)
+<!-- print(accuracy) -->
 
-```
+<!-- ``` -->
 
-# Appendix 
+<!-- # Appendix  -->
 
-```{r}
-summary(data)
-sessionInfo()
-```
+<!-- ```{r} -->
+<!-- summary(data) -->
+<!-- sessionInfo() -->
+<!-- ``` -->
