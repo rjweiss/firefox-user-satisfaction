@@ -6,6 +6,8 @@ output: html_document
 ---
 
 ```{r echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+#url <- 'https://app.surveygizmo.com/reportsview/?key=28049-5441187-88cd6ce8aab9961a4147d8b0dc50ae38&print=true' #v1
+url <- 'https://app.surveygizmo.com/reportsview/?key=28049-5818288-cd27e6c7581f30a7ac7e89922330fe0f&print=true' #v2
 source('v1.R') # recoding and another data reshaping
 ```
 
@@ -89,7 +91,7 @@ phat = as.data.frame(predict(model_restricted, type="class"))
 pander(table(phat$`predict(model_restricted, type = "class")`, scaled_small_questions$score))
 accuracy = sum(phat$`predict(model_restricted, type = "class")` == small_questions$score)/length(small_questions$score)
 print(accuracy)
-
+  +
 phat1 = as.data.frame(predict(model1, type="class"))
 accuracy1 = sum(phat1$`predict(model1, type = "class")` == questions_v1$score)/length(questions_v1$score)
 

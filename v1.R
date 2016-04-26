@@ -10,7 +10,7 @@ library(ggthemes)
 library(pander)
 library(MASS)
 
-data = read_csv('URL GOES HERE')
+data = read_csv(url)
 ###
 # Recoding
 ###
@@ -38,6 +38,7 @@ data = plyr::rename(data, c(
   "I’m not a regular Firefox user:Why are you not likely to use Firefox in the next few days?" = 'irregular',
   "Another browser seems better:Why are you not likely to use Firefox in the next few days?" = 'competitor'))
 
+# eliminate duplicate columns
 data = data[, !duplicated(colnames(data))] 
 
 data$score = as.numeric(data$score)
