@@ -1,12 +1,12 @@
 ---
 title: "User Satisfaction Index v1"
-author: "Rebecca Weiss"
-date: "January 26, 2016"
+author: "Rebecca Weiss (revised by jtg)"
+date: "April 26, 2016"
 output: html_document
 ---
 
 ```{r echo=FALSE, results='hide', warning=FALSE, message=FALSE}
-url <- 'https://app.surveygizmo.com/reportsview/?key=28049-5441187-88cd6ce8aab9961a4147d8b0dc50ae38&print=true' #v1
+url <- 'https://app.surveygizmo.com/reportsview/?key=28049-5818288-cd27e6c7581f30a7ac7e89922330fe0f&print=true' #v2
 source('v1.R') # recoding and another data reshaping
 ```
 
